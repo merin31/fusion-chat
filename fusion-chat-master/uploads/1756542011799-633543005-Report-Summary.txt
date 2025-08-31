@@ -1,0 +1,88 @@
+Report Summary
+
+In this report, an overview of the HTML and CSS code used to develop a user-friendly portfolio website is used. The website showcases skills and about as a web developer and aims to create a visually appealing and interactive user experience using various html elements and designing to very simple style using various CSS elements.
+HTML Structure:
+1.Header Section: The header section includes a top navigation bar with a logo ("WOSER"), a menu with navigation links to "About Me," "Portfolio," and "Contact," and CV button on top right.
+2.CV section: In this section I have added a different page of CV made using Table headings and lists.
+3.Detail section:  In this section I have just described about me with a “Get in Touch” button in bottom and styling it.
+4.About Me Section: In this section a simple heading is made with hover on it and a paragraph about me.
+5.Portfolio Section: In this section there are skill I have.
+6.Contact Section: The contact section includes my contact details (phone and email) and links to his social media profiles (Instagram, LinkedIn, Facebook Messenger).
+7.Footer: The footer displays a copyright notice.
+8.Database Connection: Database connection was made using PHP on XAMPP.
+
+
+CSS Styling:
+1.General Styles: The CSS file includes general styles for the body, setting the font family to "Poppins," and ensuring zero margins, box-sizing and padding.
+2.Header Styles: The header section is styled with a dark background color and white text. 
+3.Navbar Styles: The navigation bar is designed with a dark background, white text, and custom hover effects.
+4.Social Media Icons: Social media icons in the contact section are styled with a transition effect for color change on hover.
+5.Footer Styles: The footer has a dark background, white text, and is centered.
+
+
+PHP code to connect with Database
+<?php
+// Connect to the database
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "portfolio";
+
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Check the connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Set the parameter values from the form submission
+$name = $_POST["name"];
+$email = $_POST["email"];
+$phone = $_POST["phone"];
+$address = $_POST["address"];
+
+// Prepare the SQL statement with placeholders
+$stmt = $conn->prepare("INSERT INTO details (name, email, phone, address) VALUES (?, ?, ?, ?)");
+
+// Bind parameters to the placeholders
+$stmt->bind_param("ssss", $name, $email, $phone, $address);
+
+// Execute the statement
+if ($stmt->execute()) {
+    echo "New record created successfully";
+} else {
+    echo "Error: " . $stmt->error;
+}
+
+// Close the connection
+$stmt->close();
+$conn->close();
+?>
+
+
+
+
+Conclusion : Portfolio Website 
+Project Overview: The purpose of this project was to design and develop a portfolio website. The website showcases the developer's personal information, skills, and a contact form to connect with visitors. The project utilized HTML, CSS, and PHP to create an interactive and informative web presence.
+Project Elements:
+1.HTML Structure:
+oHTML was used to create the website's structure, including headers, sections, and forms.
+2.CSS Styling:
+oCSS was used extensively for styling the website.
+oVarious styles were applied to achieve a visually appealing design.
+3.Navigation Menu:
+oA navigation menu with links to "About Me," "Portfolio," and "Contact" sections was included for easy navigation.
+4.About Me Section:
+oThe "About Me" section provided a brief introduction of the developer.
+oA simple and clean design was employed to convey essential information.
+5.Portfolio Section:
+oThe "Portfolio" section highlighted the developer's skills, including proficiency in Responsive HTML, CSS, React, and Bootstrap.
+oClear and concise content was presented for visitor understanding.
+6.Contact Form:
+oA contact form was implemented using HTML to collect visitor data.
+oPHP was used to process the form submission and insert data into a MySQL database.
+7.Database Integration:
+oPHP scripts were utilized to establish a connection with the MySQL database.
+oPrepared statements with placeholders were used for secure data insertion.
+oData from the contact form (name, email, phone, and address) was stored in the "details" table of the "portfolio" database.
+Conclusion: In conclusion, this portfolio website was a developed, using HTML, CSS, and PHP. It effectively presents the developer's information and skills while ensuring secure data handling through database integration.
