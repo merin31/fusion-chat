@@ -19,7 +19,7 @@ const server = http.createServer(app);
 
 // --- Middleware ---
 app.use(cors({
-  origin: "http://localhost:3000",
+  origin: "*",
   credentials: true,
 }));
 app.use(express.json());
@@ -151,36 +151,55 @@ io.on("connection", (socket) => {
   }
 });
   // --- WebRTC signaling ---
-  socket.on("webrtc-offer", ({ from, to, offer }) => {
-    const targetSocket = onlineUsers.get(to);
-    if (targetSocket) io.to(targetSocket).emit("webrtc-offer", { from, to, offer });
-  });
+  socket.on("webrtc-offer", ({ from, to, offer, isVideoCall, callerName }) => {
+  const targetSocket = onlineUsers.get(to);
+  if (targetSocket) {
+    io.to(targetSocket).emit("webrtc-offer", { 
+      from, 
+      to, 
+      offer, 
+      isVideoCall: isVideoCall || false,
+      callerName: callerName || "Unknown"
+    });
+    console.log(`📡 Forwarded ${isVideoCall ? 'video' : 'audio'} call offer from ${from} -> ${to}`);
+  } else {
+    console.warn(`⚠️ Offer target ${to} not online`);
+    socket.emit("webrtc-error", { type: "offer", to, message: "User not available" });
+  }
+});
 
-  socket.on("webrtc-answer", ({ from, to, answer }) => {
-    const targetSocket = onlineUsers.get(to);
-    if (targetSocket) io.to(targetSocket).emit("webrtc-answer", { from, to, answer });
-  });
+socket.on("webrtc-answer", ({ from, to, answer }) => {
+  const targetSocket = onlineUsers.get(to);
+  if (targetSocket) {
+    io.to(targetSocket).emit("webrtc-answer", { from, to, answer });
+    console.log(`📡 Forwarded answer from ${from} -> ${to}`);
+  } else {
+    console.warn(`⚠️ Answer target ${to} not online`);
+    socket.emit("webrtc-error", { type: "answer", to, message: "User not available" });
+  }
+});
 
-  socket.on("webrtc-ice", ({ from, to, candidate }) => {
-    const targetSocket = onlineUsers.get(to);
-    if (targetSocket) io.to(targetSocket).emit("webrtc-ice", { from, to, candidate });
-  });
+socket.on("webrtc-ice", ({ from, to, candidate }) => {
+  const targetSocket = onlineUsers.get(to);
+  if (targetSocket) {
+    io.to(targetSocket).emit("webrtc-ice", { from, to, candidate });
+    console.log(`📡 Forwarded ICE candidate from ${from} -> ${to}`);
+  } else {
+    console.warn(`⚠️ ICE target ${to} not online`);
+    socket.emit("webrtc-error", { type: "ice", to, message: "User not available" });
+  }
+});
 
-  socket.on("webrtc-end", ({ from, to }) => {
-    const targetSocket = onlineUsers.get(to);
-    if (targetSocket) io.to(targetSocket).emit("webrtc-end", { from, to });
-  });
-
-  // Disconnect
-  socket.on("disconnect", () => {
-    for (let [userId, sockId] of onlineUsers) {
-      if (sockId === socket.id) {
-        onlineUsers.delete(userId);
-        console.log(`❌ User disconnected: ${userId}`);
-        break;
-      }
-    }
-  });
+socket.on("webrtc-end", ({ from, to }) => {
+  const targetSocket = onlineUsers.get(to);
+  if (targetSocket) {
+    io.to(targetSocket).emit("webrtc-end", { from, to });
+    console.log(`📡 Call ended from ${from} -> ${to}`);
+  } else {
+    console.warn(`⚠️ End target ${to} not online`);
+    socket.emit("webrtc-error", { type: "end", to, message: "User not available" });
+  }
+});
 });
 
 // --- Start server ---
